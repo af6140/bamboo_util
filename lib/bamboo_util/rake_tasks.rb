@@ -85,7 +85,6 @@ module BambooUtil
             exit 1
           end
           
-          puts "options: #{options}"
           client= BambooUtil::Client.new(url: options[:url], user: options[:user], password: options[:password])
           
           #def queue_plan(plan, custom_revision=nil ,stage=nil, executeAllStages=true,  variables={})

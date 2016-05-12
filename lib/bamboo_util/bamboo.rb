@@ -74,7 +74,6 @@ module BambooUtil
           params[variable_name] = value unless value.nil? || value.empty?
         end
       end
-      puts "params: #{params}"
       query_params = URI.encode_www_form(params)# unless params.empty?
       if query_params
         url = "#{@config[:url]}/queue/#{plan}?#{query_params}"
