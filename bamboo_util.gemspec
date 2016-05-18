@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = BambooUtil::VERSION
   spec.authors       = ["Wang, Dawei"]
   spec.email         = ["daweiwang.gatekeeper@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{Invoke remote bamboo task}
+  spec.description   = %q{Invoking remote bamboo task with REST api}
   spec.homepage      = ""
   spec.license       = "Apache-2.0"
 
