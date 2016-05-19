@@ -30,6 +30,7 @@ module BambooUtil
         response= RestClient::Request.execute(method: :post, url: url,
           user: @config[:user], password: @config[:password], :verify_ssl =>OpenSSL::SSL::VERIFY_NONE)
         @logger.info("plan queued successfully: #{response}")
+        return true
       rescue RestClient::Exception => error
         @logger.fatal("Cannot queue plan, #{error.class}")
         response_code = error.http_code
@@ -53,6 +54,7 @@ module BambooUtil
         else
           @logger.warn("Unexpected response code: #{response_code}, #{error.to_s}")
         end  
+        return false
       end
       
     end

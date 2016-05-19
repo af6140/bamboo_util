@@ -89,9 +89,14 @@ module BambooUtil
           
           #def queue_plan(plan, custom_revision=nil ,stage=nil, executeAllStages=true,  variables={})
           executeAllStages=true  unless options[:stage]
-          client.queue_plan(plan: options[:plan], custom_revision: options[:revision], stage: options[:stage] ,executeAllStages: executeAllStages, variables: options[:variables])
+          success=client.queue_plan(plan: options[:plan], custom_revision: options[:revision], stage: options[:stage] ,executeAllStages: executeAllStages, variables: options[:variables])
           
-          exit 0
+          if success 
+            return 0
+          else
+            return 1
+          end
+          
         end # ent task
       
       end #namesapce
