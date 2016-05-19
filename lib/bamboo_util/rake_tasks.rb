@@ -94,7 +94,7 @@ module BambooUtil
           if success 
             exit 0
           else
-            exit 1
+            fail "Plan cannot not be queued"
           end
           
         end # ent task
