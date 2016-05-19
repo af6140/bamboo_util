@@ -92,9 +92,9 @@ module BambooUtil
           success=client.queue_plan(plan: options[:plan], custom_revision: options[:revision], stage: options[:stage] ,executeAllStages: executeAllStages, variables: options[:variables])
           
           if success 
-            return 0
+            exit 0
           else
-            return 1
+            exit 1
           end
           
         end # ent task
