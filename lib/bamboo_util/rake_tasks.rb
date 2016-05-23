@@ -82,9 +82,11 @@ module BambooUtil
             File.open(options[:config], "r") do |f|
               configs= f.read()
             end
-            conf_hash=JSON.parse(configs)           
+            conf_hash=JSON.parse(configs)                      
           end
           
+          conf_hash = Hash[conf_hash.map { |k, v| [k.to_sym, v] }]
+          puts conf_hash
           if conf_hash[:url].nil?
             fail "Missing url"            
           end
@@ -97,11 +99,11 @@ module BambooUtil
             fail "Missing plan key"
           end
             
-          client= BambooUtil::Client.new(url: options[:url], user: options[:user], password: options[:password])
+          client= BambooUtil::Client.new(url: conf_hash[:url], user: conf_hash[:user], password: conf_hash[:password])
           
           #def queue_plan(plan, custom_revision=nil ,stage=nil, executeAllStages=true,  variables={})
-          executeAllStages=true  unless options[:stage]
-          success=client.queue_plan(plan: options[:plan], custom_revision: options[:revision], stage: options[:stage] ,executeAllStages: executeAllStages, variables: options[:variables])
+          executeAllStages=true  unless conf_hash[:stage]
+          success=client.queue_plan(plan: conf_hash[:plan], custom_revision: conf_hash[:revision], stage: conf_hash[:stage] ,executeAllStages, variables: conf_hash[:variables])
           
           if success 
             exit 0
