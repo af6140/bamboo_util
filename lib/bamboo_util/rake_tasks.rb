@@ -64,8 +64,7 @@ module BambooUtil
               begin 
                 variable_hash = JSON.parse(variables)
               rescue
-                puts "variables not in json format : #{variables}"
-                exit 1
+                fail "variables not in json format : #{variables}"                
               end 
               options[:variables] = variable_hash if variable_hash
             end
@@ -73,20 +72,20 @@ module BambooUtil
           end
           args = opt_parser.order!(ARGV) {}
           opt_parser.parse!(args)
-          
           conf_hash = {}
           if options[:config].nil? || options[:config].empty? # no configuration file specified
-            conf_hash.merge(options)
+            conf_hash=conf_hash.merge(options)
           else # has configuration file
             configs = nil
             File.open(options[:config], "r") do |f|
               configs= f.read()
             end
-            conf_hash=JSON.parse(configs)                      
+            conf_hash=JSON.parse(configs)   
+            conf_hash=conf_hash.merge(options)                   
           end
           
           conf_hash = Hash[conf_hash.map { |k, v| [k.to_sym, v] }]
-          puts conf_hash
+          #puts conf_hash
           if conf_hash[:url].nil?
             fail "Missing url"            
           end
@@ -103,7 +102,7 @@ module BambooUtil
           
           #def queue_plan(plan, custom_revision=nil ,stage=nil, executeAllStages=true,  variables={})
           executeAllStages=true  unless conf_hash[:stage]
-          success=client.queue_plan(plan: conf_hash[:plan], custom_revision: conf_hash[:revision], stage: conf_hash[:stage] ,executeAllStages, variables: conf_hash[:variables])
+          success=client.queue_plan(plan: conf_hash[:plan], custom_revision: conf_hash[:revision], stage: conf_hash[:stage] ,executeAllStages: executeAllStages, variables: conf_hash[:variables])
           
           if success 
             exit 0
