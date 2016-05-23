@@ -30,6 +30,10 @@ module BambooUtil
           opt_parser=OptionParser.new do |opts|            
             opts.banner = "Usage rake bamboo_util:queue_plan [options]"
             
+            opts.on("-c", "--config {config}", "utility configuration file", String) do |config|
+              options[:config] = config
+            end
+            
             opts.on("-l", "--url {url}", "bamboo api url, like https://bamboo.entertainment.com/rest/api/latest", String) do |url|
               options[:url] = url
             end
@@ -70,21 +74,29 @@ module BambooUtil
           args = opt_parser.order!(ARGV) {}
           opt_parser.parse!(args)
           
-          if options[:url].nil?
-            puts "Missing url"
-            exit 1
+          conf_hash = {}
+          if options[:config].nil? || options[:config].empty? # no configuration file specified
+            conf_hash.merge(options)
+          else # has configuration file
+            configs = nil
+            File.open(options[:config], "r") do |f|
+              configs= f.read()
+            end
+            conf_hash=JSON.parse(configs)           
           end
           
-          if options[:user].nil? || options[:password].nil?
-            puts "Missing username or password"
-            exit 1
+          if conf_hash[:url].nil?
+            fail "Missing url"            
           end
-          
-          if options[:plan].nil?
-            puts "Missing plan key"
-            exit 1
+            
+          if conf_hash[:user].nil? || conf_hash[:password].nil?
+            fail "Missing username or password"
           end
-          
+            
+          if conf_hash[:plan].nil?
+            fail "Missing plan key"
+          end
+            
           client= BambooUtil::Client.new(url: options[:url], user: options[:user], password: options[:password])
           
           #def queue_plan(plan, custom_revision=nil ,stage=nil, executeAllStages=true,  variables={})
