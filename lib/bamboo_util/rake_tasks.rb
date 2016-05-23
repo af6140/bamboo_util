@@ -30,6 +30,10 @@ module BambooUtil
           opt_parser=OptionParser.new do |opts|            
             opts.banner = "Usage rake bamboo_util:queue_plan [options]"
             
+            opts.on("-c", "--config {config}", "utility configuration file", String) do |config|
+              options[:config] = config
+            end
+            
             opts.on("-l", "--url {url}", "bamboo api url, like https://bamboo.entertainment.com/rest/api/latest", String) do |url|
               options[:url] = url
             end
@@ -60,8 +64,7 @@ module BambooUtil
               begin 
                 variable_hash = JSON.parse(variables)
               rescue
-                puts "variables not in json format : #{variables}"
-                exit 1
+                fail "variables not in json format : #{variables}"                
               end 
               options[:variables] = variable_hash if variable_hash
             end
@@ -69,27 +72,37 @@ module BambooUtil
           end
           args = opt_parser.order!(ARGV) {}
           opt_parser.parse!(args)
-          
-          if options[:url].nil?
-            puts "Missing url"
-            exit 1
+          conf_hash = {}
+          if options[:config].nil? || options[:config].empty? # no configuration file specified
+            conf_hash=conf_hash.merge(options)
+          else # has configuration file
+            configs = nil
+            File.open(options[:config], "r") do |f|
+              configs= f.read()
+            end
+            conf_hash=JSON.parse(configs)   
+            conf_hash=conf_hash.merge(options)                   
           end
           
-          if options[:user].nil? || options[:password].nil?
-            puts "Missing username or password"
-            exit 1
+          conf_hash = Hash[conf_hash.map { |k, v| [k.to_sym, v] }]
+          #puts conf_hash
+          if conf_hash[:url].nil?
+            fail "Missing url"            
           end
-          
-          if options[:plan].nil?
-            puts "Missing plan key"
-            exit 1
+            
+          if conf_hash[:user].nil? || conf_hash[:password].nil?
+            fail "Missing username or password"
           end
-          
-          client= BambooUtil::Client.new(url: options[:url], user: options[:user], password: options[:password])
+            
+          if conf_hash[:plan].nil?
+            fail "Missing plan key"
+          end
+            
+          client= BambooUtil::Client.new(url: conf_hash[:url], user: conf_hash[:user], password: conf_hash[:password])
           
           #def queue_plan(plan, custom_revision=nil ,stage=nil, executeAllStages=true,  variables={})
-          executeAllStages=true  unless options[:stage]
-          success=client.queue_plan(plan: options[:plan], custom_revision: options[:revision], stage: options[:stage] ,executeAllStages: executeAllStages, variables: options[:variables])
+          executeAllStages=true  unless conf_hash[:stage]
+          success=client.queue_plan(plan: conf_hash[:plan], custom_revision: conf_hash[:revision], stage: conf_hash[:stage] ,executeAllStages: executeAllStages, variables: conf_hash[:variables])
           
           if success 
             exit 0
